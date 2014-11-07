@@ -1,0 +1,27 @@
+<script src="http://api.paymentwall.com/pro/js/paymentwall.js"></script>
+<div class="errors"></div>
+<div id="paymentwallForm"></div>
+<script>
+	$(document).ready(function() {
+		$('#tdb5').hide();
+	});
+
+	var publicKey = 'PW_CONST_PUBLIC_KEY';
+	PaymentwallPro.Initialize(publicKey, 'PW_CONST_AMOUNT', 'PW_CONST_CURRENCY', {
+		'fields': ['cc-name', 'cc-email'],
+		'container_id': 'paymentwallForm',
+		'action': 'pwpro.php',
+		'responseHandler': function(data) {
+			if (data.success === 1) {
+				$('#tdb5').click();
+			} else {
+				$('.errors').html(data.error.message);
+
+				if (data.error.field === 'cc-number') {
+					$('#cc-number').css({'color': 'red'});
+				}
+			}
+		}
+	});
+</script>
+<link rel="stylesheet" type="text/css" href="public/css/paymentwallcustom.css" />
