@@ -6,10 +6,8 @@ if (isset($_SESSION['order']) && isset($_SESSION['insert_id'])) {
 
     $order = (array)unserialize(base64_decode($_SESSION['order']));
 
-    if (filter_var($order['customer']['email_address'], FILTER_VALIDATE_EMAIL)) {
-        $customer_id = tep_db_query("select customers_id from " . TABLE_CUSTOMERS . " where customers_email_address = '" . $order['customer']['email_address'] . "'");
-    } else {
-        die('email is not valid');
+    if (!filter_var($order['customer']['email_address'], FILTER_VALIDATE_EMAIL)) {
+        die('Email is not valid');
     }
 
     $currency = mysqli_fetch_assoc(tep_db_query("select currency from " . TABLE_ORDERS . " where orders_id = '" . (int)$_SESSION['insert_id'] . "'"))['currency'];
@@ -33,11 +31,14 @@ if (isset($_SESSION['order']) && isset($_SESSION['insert_id'])) {
                 Paymentwall_Product::TYPE_FIXED            // this is a time-based product; for one-time products, use Paymentwall_Product::TYPE_FIXED and omit the following 3 array elements
             )
         ),
-        array(
-            'email' => $order['customer']['email_address'],
-            'success_url' => strval(MODULE_PAYMENT_PAYMENTWALL_SUCCESS_URL),
-            'integration_module' => 'oscommerce',
-            'test_mode' => ((MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST == 'True') ? 1 : 0)
+        array_merge(
+            array(
+                'email' => $order['customer']['email_address'],
+                'success_url' => strval(MODULE_PAYMENT_PAYMENTWALL_SUCCESS_URL),
+                'integration_module' => 'oscommerce',
+                'test_mode' => ((MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST == 'True') ? 1 : 0)
+            ),
+            getUserProfileData($order)
         )
     );
     unset($_SESSION['order']);
