@@ -160,8 +160,14 @@ class paymentwall
         tep_db_query("insert into " . TABLE_CONFIGURATION .
             " (configuration_title, configuration_key, configuration_value, configuration_description,
             configuration_group_id, sort_order, set_function, date_added) 
-            values ('Do you want enable test_mode', 'MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST', 'False', 
-                'Do you want enable test_mode?', '6', '11', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+            values ('Do you want enable test mode', 'MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST', 'False',
+                'Do you want enable test mode?', '6', '11', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+
+        tep_db_query("insert into " . TABLE_CONFIGURATION .
+            " (configuration_title, configuration_key, configuration_value, configuration_description,
+            configuration_group_id, sort_order, set_function, date_added)
+            values ('Enable Delivery Api', 'MODULE_PAYMENT_PAYMENTWALL_DELIVERY', 'True',
+                '', '6', '11', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
     }
 
     function remove()
@@ -182,7 +188,29 @@ class paymentwall
             'MODULE_PAYMENT_PAYMENTWALL_ORDER_STATUS_ID',
             'MODULE_PAYMENT_PAYMENTWALL_ORDER_STATUS_ID_SUCCESS',
             'MODULE_PAYMENT_PAYMENTWALL_ORDER_STATUS_ID_FAIL',
-            'MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST'
+            'MODULE_PAYMENT_PAYMENTWALL_STATUS_TEST',
+            'MODULE_PAYMENT_PAYMENTWALL_DELIVERY',
         );
+    }
+
+    function confirmation()
+    {
+        global $comments;
+        $confirmation = false;
+
+        if (!isset($comments)) {
+            $comments = null;
+        }
+
+        if (empty($comments)) {
+            $confirmation = array('fields' => array(
+                array(
+                    'title' => MODULE_PAYMENT_PAYMENTWALL_TEXT_DESCRIPTION,
+                    'field' => tep_draw_textarea_field('ppecomments', 'soft', '60', '5', $comments)
+                )
+            ));
+        }
+
+        return $confirmation;
     }
 }
